@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="crafty.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="https://cdn.firebase.com/v0/firebase.js"></script>	
+	</head>
+	<body>
+		<script>
+			var players = new Firebase("https://shaq1nj.firebaseio.com/users/"); //Initialize network players.
+
+			var apiKey = 'http://api.tumblr.com/v2/tagged?tag=super+mario+bros&api_key=MRF3b5gurS1LS79TMfNMuLYb8c2nWc8XneEuCktOikBZrtWm3T&callback=?';
+			var inputTag = prompt("Please enter a Tumblr tag to search for!", "Super Mario Bros");
+			if (inputTag != null && inputTag != "")
+			{
+				apiKey = 'http://api.tumblr.com/v2/tagged?tag=' + inputTag + '&api_key=MRF3b5gurS1LS79TMfNMuLYb8c2nWc8XneEuCktOikBZrtWm3T&callback=?';
+			}
+ 
+			var imgLinks = [];
+			
+				$.getJSON(apiKey) 
+				.done(function(data)
+				{
+				      //console.log(data);
+				      
+				      for (var i = 0; i < data.response.length; i++)
+				      {
+				      	if(data.response[i].photos != undefined && data.response[i].photos[0].alt_sizes[4] != undefined)
+				      	{
+				      		//console.log("test: " + data.response[i].photos[0].alt_sizes[4].url);
+				      		imgLinks.push(data.response[i].photos[0].alt_sizes[4].url);
+				      		//console.log(imgLinks);
+				      	}
+				      }
+				
+				      game();
+				      
+				});
+			function game()
+			{
+				var playerID = (Math.floor(Math.random() * 123234234001));
+				var dataRef = new Firebase("https://shaq1nj.firebaseio.com/users/" + playerID);
+				dataRef.onDisconnect().remove();
+				dataRef.set({id: playerID, coordX: 50, coordY: 370}); //Initialize character in network.
+				
+
+				Crafty.init(900,400);
+
+
+				
+				var bg = Crafty.e("Background, 2D, DOM, Image")
+						.attr({w: 12000, h: 400})
+						.image("bg.png", "repeat");
+				var platform = Crafty.e("Platform, 2D, DOM, Color")
+						.attr({x: 0, y: 350, w: 12000, h:50})
+						.color('rgb(0,255,150)');
+
+				//Draw other online players.
+				players.on('child_added', function(snapshot) 
+				{
+					//console.log(snapshot.val());
+				});
+
+				//var mario2 = Crafty.e(" 2D, DOM, Image")
+				//		.attr({x: 150, y: 370, w: 30, h: 30})
+				//		.image("mario1.png");
+				//mario2.visible = false;
+				//Draw other online players.
+				var anotherPlayer;
+				players.on('child_changed', function(snapshot) 
+				{
+					//console.log("change detected");
+					var otherPlayer = snapshot.val();
+					if (otherPlayer.id !== playerID)
+					{
+						//console.log("different id found");
+						
+						if (anotherPlayer == undefined)
+						{	
+							//console.log("undef");	
+							anotherPlayer = Crafty.e("AnotherPlayer, 2D, DOM, Image")
+							.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
+							.image("mario1.png")
+							.visible = true;
+						}
+						else
+						{
+							//console.log("already exists: " + anotherPlayer);
+							Crafty("AnotherPlayer").each(function(i) 
+							{
+								this.destroy(); //Prevents shadow copies.
+							});
+							anotherPlayer = Crafty.e("AnotherPlayer, 2D, DOM, Image")
+							.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
+							.image("mario1.png")
+							.visible = true;
+						}
+
+					}
+				});
+
+				/*dataRef.on('child_added', function(snapshot) 
+				{
+					var message = snapshot.val();
+					console.log(message);
+					console.log(message.coordY);
+					mario2 = Crafty.e("Mario2, 2D, DOM, Image")
+						.attr({x: message, y: message, w: 30, h: 30})
+						.image("mario1.png");
+					
+				});*/
+				var mario = Crafty.e("Mario, 2D, DOM, Multiway, Image, Gravity")
+						.multiway(10, {UP_ARROW: -90, RIGHT_ARROW: 0, LEFT_ARROW: -180})
+						.attr({x: 50, y: 370, w: 30, h: 30})
+						.image("mario1.png")
+						.gravity("Platform")
+						.bind("Moved", trackCoord);
+					
+				function trackCoord()
+				{
+					dataRef.update({coordX: this.x, coordY: this.y});	//Push data to multiplayer server.		
+				};
+				
+				for(var i = 0; i < imgLinks.length; i++)
+				{
+					var randX = Math.floor(Math.random() * (12000 - 400 + 1) + 400);
+					var randY = Math.floor(Math.random() * (200 - 100 + 1) + 100);
+					Crafty.e("Image, 2D, DOM, Image")
+						.attr({x: randX, y: randY, w:100, h:100})
+						.image(imgLinks[i]);
+				}
+						
+				Crafty.viewport.follow(mario, 0, 0);
+				//console.log(Crafty.DOM.inner(mario));
+			}
+			
+		</script>
+	</body>
+</html>
+
