@@ -39,15 +39,13 @@
 			function game()
 			{
 				var playerID = (Math.floor(Math.random() * 123234234001));
+
+				var numberOfPlayers = 0; //Number of players to draw
 				var dataRef = new Firebase("https://shaq1nj.firebaseio.com/users/" + playerID);
 				dataRef.onDisconnect().remove();
 				dataRef.set({id: playerID, coordX: 50, coordY: 370}); //Initialize character in network.
 				
-
-				Crafty.init(900,400);
-
-
-				
+				Crafty.init(900,400); //Initiate game in DOM Javascript.
 				var bg = Crafty.e("Background, 2D, DOM, Image")
 						.attr({w: 12000, h: 400})
 						.image("bg.png", "repeat");
@@ -55,10 +53,21 @@
 						.attr({x: 0, y: 350, w: 12000, h:50})
 						.color('rgb(0,255,150)');
 
-				//Draw other online players.
-				players.on('child_added', function(snapshot) 
+				//Draw other online players using players Firebase object (not dataRef obj).
+				players.on('value', function(snapshot) 
 				{
-					console.log(snapshot.val());
+					snapshot.forEach(function(child)
+					{
+						childData = child.val();
+						if (childData.id !== playerID)
+						{
+							console.log("new id found: " + childData.id);
+						}
+					});
+					//console.log("Value changed: " + obj);
+					//console.log("Value user: " + obj[0]);
+
+					
 				});
 
 				//var mario2 = Crafty.e(" 2D, DOM, Image")
@@ -91,7 +100,6 @@
 							.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
 							.image("mario1.png")
 							.gravity("Platform"); //Added gravity so that other players land too. It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
-
 					}
 				});
 
