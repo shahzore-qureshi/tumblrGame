@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="lib/crafty.js"></script>
+		<script src="src/components.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="https://cdn.firebase.com/v0/firebase.js"></script>	
+	</head>
+	<body>
+		<script>
+			var players = new Firebase("https://shaq1nj.firebaseio.com/users/"); //Initialize network players.
+
+			var apiKey = 'http://api.tumblr.com/v2/tagged?tag=super+mario+bros&api_key=MRF3b5gurS1LS79TMfNMuLYb8c2nWc8XneEuCktOikBZrtWm3T&callback=?';
+			var inputTag = prompt("Please enter a Tumblr tag to search for!", "Super Mario Bros");
+			if (inputTag != null && inputTag != "")
+			{
+				apiKey = 'http://api.tumblr.com/v2/tagged?tag=' + inputTag + '&api_key=MRF3b5gurS1LS79TMfNMuLYb8c2nWc8XneEuCktOikBZrtWm3T&callback=?';
+			}
+ 
+			var imgLinks = [];
+			
+				$.getJSON(apiKey) 
+				.done(function(data)
+				{
+				      //console.log(data);
+				      
+				      for (var i = 0; i < data.response.length; i++)
+				      {
+				      	if(data.response[i].photos != undefined && data.response[i].photos[0].alt_sizes[4] != undefined)
+				      	{
+				      		//console.log("test: " + data.response[i].photos[0].alt_sizes[4].url);
+				      		imgLinks.push(data.response[i].photos[0].alt_sizes[4].url);
+				      		//console.log(imgLinks);
+				      	}
+				      }
+				
+				      game();
+				      
+				});
+
+			function game()
+			{
+				var playerID = (Math.floor(Math.random() * 123234234001)); //Generate a random ID.
+
+				var networkPlayerList = []; //List of available network players (opponents).
+
+				var dataRef = new Firebase("https://shaq1nj.firebaseio.com/users/" + playerID); //Create new Firebase obj for current player.
+				dataRef.onDisconnect().remove(); //If browser closes, disconnect from server.
+				dataRef.set({id: playerID, coordX: 50, coordY: 370}); //Initialize character on network.
+				
+				Crafty.init(900,400); //Initiate game in DOM Javascript.
+
+				var bg = Crafty.e("Background, 2D, DOM, Image")
+						.attr({w: 12000, h: 400})
+						.image("assets/bg.png", "repeat");
+
+				var platform = Crafty.e("Obstacle, Color")
+						.attr({x: 0, y: 350, w: 12000, h: 50})
+						.color('rgb(0,255,150)');
+
+				var leftBoundary = Crafty.e("Obstacle, 2D, DOM, Color")
+							.attr({x: -5, y: 0, w: 5, h: 400})
+							.color('rgb(255,255,255)');
+				
+				var mario = Crafty.e("Mario, Gravity")
+						.bind("Moved", trackCoord)
+						.gravity("Obstacle"); //Any obstacle can stop Mario from falling.
+				
+				function trackCoord()
+				{
+					dataRef.update({coordX: this.x, coordY: this.y});	//Push data to multiplayer server.		
+				}
+				
+				for(var i = 0; i < imgLinks.length; i++)
+				{
+					var randX = Math.floor(Math.random() * (12000 - 400 + 1) + 400);
+					var randY = Math.floor(Math.random() * (200 - 100 + 1) + 100);
+					Crafty.e("Obstacle, Image")
+						.attr({x: randX, y: randY, w:100, h:100})
+						.image(imgLinks[i]);
+				}
+						
+				Crafty.viewport.follow(mario, 0, 0); //Specify camera angle and view to follow Mario.
+
+				//Draw other online players using players Firebase object (not dataRef obj). Only call this once.
+				players.once('value', function(snapshot) 
+				{
+					snapshot.forEach(function(child)
+					{
+						childData = child.val();
+						if (childData.id !== playerID && childData.id !== undefined)
+						{
+							//console.log("current id: " + playerID);
+							//console.log("new opponent id found: " + childData.id);
+							
+							networkPlayerList.push(childData.id);
+							//console.log("Player List: " + networkPlayerList);
+
+							var entityID = childData.id; //Use this variable to keep track of network sprite.
+
+							Crafty.e("" + entityID + ", 2D, DOM, Image, Gravity")
+								.attr({x: childData.coordX, y: childData.coordY, w: 30, h: 30})
+								.image("assets/mario1.png")
+								.gravity("Platform") //Added gravity so that other players land too. 
+										      //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
+								.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
+
+						}
+					});
+				});
+
+				//Add new players as they come.
+				players.on('child_added', function(snapshot)
+				{
+					var otherPlayer = snapshot.val();
+					if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+					{
+						//console.log("child added id: " + otherPlayer.id);
+
+						networkPlayerList.push(otherPlayer.id);
+						//console.log("Player List: " + networkPlayerList);
+
+						var entityID = otherPlayer.id; //Use this variable to keep track of network sprite.
+
+						Crafty.e("" + entityID + ", 2D, DOM, Image, Gravity")
+							.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
+							.image("assets/mario1.png")
+							.gravity("Platform") //Added gravity so that other players land too. 
+									      //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
+							.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
+
+					}
+				});
+
+				//When change is detected on server, update location of network player.
+				function changeLocation(playerObject)
+				{
+					this.x = playerObject.coordX;
+					this.y = playerObject.coordY;
+				}
+
+				//Update position of other players.
+				players.on('child_changed', function(snapshot) 
+				{
+					//console.log("change detected");
+					var otherPlayer = snapshot.val();
+					if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+					{
+						//console.log("child change id: " + otherPlayer.id);
+						Crafty.trigger("moveID" + otherPlayer.id, otherPlayer); //Update location via event triggering.
+					}
+				});
+
+				//When a network player leaves, delete him or her.	
+				players.on('child_removed', function(snapshot)
+				{
+					var otherPlayer = snapshot.val();
+					if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+					{
+						//console.log("child removed id: " + otherPlayer.id);
+
+						Crafty("" + otherPlayer.id + "").each(function(i) 
+						{
+							this.destroy();
+						});
+					}
+				});
+			}
+		</script>
+	</body>
+</html>
+
