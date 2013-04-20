@@ -101,7 +101,7 @@
 							Crafty.e("" + entityID + ", 2D, DOM, Image, Gravity")
 								.attr({x: childData.coordX, y: childData.coordY, w: 30, h: 30})
 								.image("assets/mario1.png")
-								.gravity("Platform") //Added gravity so that other players land too. 
+								.gravity("Obstacle") //Added gravity so that other players land too. 
 										      //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
 								.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
 
@@ -125,7 +125,7 @@
 						Crafty.e("" + entityID + ", 2D, DOM, Image, Gravity")
 							.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
 							.image("assets/mario1.png")
-							.gravity("Platform") //Added gravity so that other players land too. 
+							.gravity("Obstacle") //Added gravity so that other players land too. 
 									      //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
 							.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
 
