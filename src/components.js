@@ -75,3 +75,59 @@ Crafty.c("Mario",
 	}
 });
 
+Crafty.c("NetworkPlayer",
+{
+	init: function()
+	{
+		this.requires("2D, DOM, PlayerSprite, SpriteAnimation")
+			.animate('IdleRight', 0, 0, 15)
+			.animate('RunRight', 0, 1, 20)
+			.animate('JumpRight', 0, 2, 10)
+			.animate('IdleLeft', 0, 3, 15)
+			.animate('RunLeft', 0, 4, 20)
+			.animate('JumpLeft', 0, 5, 10);
+		
+		var animation_speed = 4;
+		this.bind('networkMove', function(data)
+		{
+			if (data.coordX > this.x && data.coordY < this.y) 
+			{
+				this.x = data.coordX;
+				this.y = data.coordY;
+				this.animate('JumpRight', animation_speed, 1);
+			}
+			else if (data.coordX < this.x && data.coordY < this.y) 
+			{
+				this.x = data.coordX;
+				this.y = data.coordY;
+				this.animate('JumpLeft', animation_speed, 1);
+			}
+			else if (data.coordX > this.x)
+			{
+				this.x = data.coordX;
+				this.y = data.coordY;
+				this.animate('RunRight', animation_speed, 1);
+			}
+			else if (data.coordX < this.x) 
+			{
+				this.x = data.coordX;
+				this.y = data.coordY;
+				this.animate('RunLeft', animation_speed, 1);
+			} 
+			else if (data.coordY < this.y) 
+			{
+				this.x = data.coordX;
+				this.y = data.coordY;
+				this.animate('JumpRight', animation_speed, 1);
+			} 
+			else 
+			{
+				this.x = data.coordX;
+				this.y = data.coordY;
+				this.stop();
+			}	
+
+		});
+	}
+});
+
