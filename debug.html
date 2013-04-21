@@ -49,121 +49,188 @@
 				dataRef.set({id: playerID, coordX: 50, coordY: 370}); //Initialize character on network.
 				
 				Crafty.init(900,400); //Initiate game in DOM Javascript.
-
-				var bg = Crafty.e("Background, 2D, DOM, Image")
-						.attr({w: 12000, h: 400})
-						.image("assets/bg.png", "repeat");
-
-				var platform = Crafty.e("Obstacle, Color")
-						.attr({x: 0, y: 350, w: 12000, h: 50})
-						.color('rgb(0,255,150)');
-
-				var leftBoundary = Crafty.e("Obstacle, 2D, DOM, Color")
-							.attr({x: -5, y: 0, w: 5, h: 400})
-							.color('rgb(255,255,255)');
-				
-				var mario = Crafty.e("Mario, Gravity")
-						.bind("Moved", trackCoord)
-						.gravity("Obstacle"); //Any obstacle can stop Mario from falling.
-				
-				function trackCoord()
+								
+				Crafty.scene("Title", function()
 				{
-					dataRef.update({coordX: this.x, coordY: this.y});	//Push data to multiplayer server.		
-				}
-				
-				for(var i = 0; i < imgLinks.length; i++)
+					Crafty.background("#FFFFFF");
+	
+					Crafty.sprite("http://craftyjs.com/demos/elevatoraction/images/title.png", {
+						title: [0, 0, 430, 396]
+					});
+					Crafty.e("2D, DOM, title")
+						.attr({x: 200});
+					this.restart_game = this.bind('KeyDown', function() {
+						Crafty.scene('Main');
+					  });
+				}, function() 
 				{
-					var randX = Math.floor(Math.random() * (12000 - 400 + 1) + 400);
-					var randY = Math.floor(Math.random() * (200 - 100 + 1) + 100);
-					Crafty.e("Obstacle, Image")
-						.attr({x: randX, y: randY, w:100, h:100})
-						.image(imgLinks[i]);
-				}
+					  this.unbind('KeyDown', this.restart_game);
+				});
+				
+								
+				Crafty.scene("Dead", function()
+				{
+					Crafty.viewport.init(900, 400);
+					Crafty.background("#FFFFFF");
+	
+					Crafty.sprite("http://craftyjs.com/demos/elevatoraction/images/title.png", {
+						gameOver: [0, 0, 430, 396]
+					});
+					Crafty.e("2D, DOM, gameOver")
+						.attr({x: 200});
 						
-				Crafty.viewport.follow(mario, 0, 0); //Specify camera angle and view to follow Mario.
-
-				//Draw other online players using players Firebase object (not dataRef obj). Only call this once.
-				players.once('value', function(snapshot) 
+    				this.restart_game = this.bind('KeyDown', function() {
+						Crafty.scene('Main');
+					  });
+				}, function() 
 				{
-					snapshot.forEach(function(child)
+					  this.unbind('KeyDown', this.restart_game);
+				});
+				
+				Crafty.scene("Main", function()
+				{
+				
+					var bg = Crafty.e("Background, 2D, DOM, Image")
+							.attr({w: 12000, h: 400})
+							.image("assets/bg.png", "repeat");
+
+					var platformBeginning = Crafty.e("Obstacle, Color")
+							.attr({x: 0, y: 350, w: 500, h: 50})
+							.color('rgb(0,255,150)');
+						
+					for(var i = 0; i < 50; i++) //Create random pitfalls via generating random bits of land.
 					{
-						childData = child.val();
-						if (childData.id !== playerID && childData.id !== undefined)
-						{
-							//console.log("current id: " + playerID);
-							//console.log("new opponent id found: " + childData.id);
+						var randX = Math.floor(Math.random() * (11000 - 500 + 1) + 500);
+						Crafty.e("Obstacle, Color")
+							.attr({x: randX, y: 350, w: 200, h: 50})
+							.color('rgb(0,255,150)');
+					
+						var enemy = Crafty.e("Enemy")
+							.attr({x: randX + 170, leftBoundary: randX, rightBoundary: randX + 170, y: 320, w: 30, h: 30, dX: -2});
+						
+						
+					}
+						
+					var platformEnding = Crafty.e("Obstacle, Color")
+							.attr({x: 11500, y: 350, w: 500, h: 50})
+							.color('rgb(0,255,150)');
+						
+					var pitfallDetector = Crafty.e("Pitfall, 2D, DOM")
+							.attr({x: 0, y: 400, w: 12000, h: 50});		
+
+					var leftBoundary = Crafty.e("Obstacle, 2D, DOM, Color")
+								.attr({x: -5, y: 0, w: 5, h: 400})
+								.color('rgb(255,255,255)');
 							
-							networkPlayerList.push(childData.id);
+					var rightBoundary = Crafty.e("Obstacle, 2D, DOM, Color")
+								.attr({x: 11995, y: 0, w: 5, h: 400})
+								.color('rgb(255,255,255)');
+				
+					var mario = Crafty.e("Mario, Gravity")
+							.bind("Moved", trackCoord)
+							.gravity("Obstacle"); //Any obstacle can stop Mario from falling.
+				
+					function trackCoord()
+					{
+						dataRef.update({coordX: this.x, coordY: this.y});	//Push data to multiplayer server.		
+					}
+				
+					for(var i = 0; i < imgLinks.length; i++)
+					{
+						var randX = Math.floor(Math.random() * (11000 - 400 + 1) + 400);
+						var randY = Math.floor(Math.random() * (150 - 100 + 1) + 150);
+						Crafty.e("Obstacle, Image")
+							.attr({x: randX, y: randY, w:100, h:100})
+							.image(imgLinks[i]);
+					}
+						
+					Crafty.viewport.follow(mario, 0, 0); //Specify camera angle and view to follow Mario.
+
+					//Draw other online players using players Firebase object (not dataRef obj). Only call this once.
+					players.once('value', function(snapshot) 
+					{
+						snapshot.forEach(function(child)
+						{
+							childData = child.val();
+							if (childData.id !== playerID && childData.id !== undefined)
+							{
+								//console.log("current id: " + playerID);
+								//console.log("new opponent id found: " + childData.id);
+							
+								networkPlayerList.push(childData.id);
+								//console.log("Player List: " + networkPlayerList);
+
+								var entityID = childData.id; //Use this variable to keep track of network sprite.
+
+								Crafty.e("" + entityID + ", NetworkPlayer, Gravity")
+									.attr({x: childData.coordX, y: childData.coordY, w: 30, h: 30})
+									.gravity("Obstacle") //Added gravity so that other players land too. 
+												  //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
+									.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
+
+							}
+						});
+					});
+
+					//Add new players as they come.
+					players.on('child_added', function(snapshot)
+					{
+						var otherPlayer = snapshot.val();
+						if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+						{
+							//console.log("child added id: " + otherPlayer.id);
+
+							networkPlayerList.push(otherPlayer.id);
 							//console.log("Player List: " + networkPlayerList);
 
-							var entityID = childData.id; //Use this variable to keep track of network sprite.
+							var entityID = otherPlayer.id; //Use this variable to keep track of network sprite.
 
 							Crafty.e("" + entityID + ", NetworkPlayer, Gravity")
-								.attr({x: childData.coordX, y: childData.coordY, w: 30, h: 30})
+								.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
 								.gravity("Obstacle") //Added gravity so that other players land too. 
-										      //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
+											  //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
 								.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
 
 						}
 					});
-				});
 
-				//Add new players as they come.
-				players.on('child_added', function(snapshot)
-				{
-					var otherPlayer = snapshot.val();
-					if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+					//When change is detected on server, update location of network player.
+					function changeLocation(playerObject)
 					{
-						//console.log("child added id: " + otherPlayer.id);
-
-						networkPlayerList.push(otherPlayer.id);
-						//console.log("Player List: " + networkPlayerList);
-
-						var entityID = otherPlayer.id; //Use this variable to keep track of network sprite.
-
-						Crafty.e("" + entityID + ", NetworkPlayer, Gravity")
-							.attr({x: otherPlayer.coordX, y: otherPlayer.coordY, w: 30, h: 30})
-							.gravity("Obstacle") //Added gravity so that other players land too. 
-									      //It wasn't doing it on its own. I guess gravity coordinate changes are not tracked.
-							.bind("moveID" + entityID, changeLocation); //Update location when child data changes.
-
+						this.x = playerObject.coordX;
+						this.y = playerObject.coordY;
 					}
-				});
 
-				//When change is detected on server, update location of network player.
-				function changeLocation(playerObject)
-				{
-					this.x = playerObject.coordX;
-					this.y = playerObject.coordY;
-				}
-
-				//Update position of other players.
-				players.on('child_changed', function(snapshot) 
-				{
-					//console.log("change detected");
-					var otherPlayer = snapshot.val();
-					if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+					//Update position of other players.
+					players.on('child_changed', function(snapshot) 
 					{
-						//console.log("child change id: " + otherPlayer.id);
-						//Crafty.trigger("moveID" + otherPlayer.id, otherPlayer); //Update location via event triggering.
-						Crafty.trigger("networkMove", otherPlayer);
-					}
-				});
-
-				//When a network player leaves, delete him or her.	
-				players.on('child_removed', function(snapshot)
-				{
-					var otherPlayer = snapshot.val();
-					if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
-					{
-						//console.log("child removed id: " + otherPlayer.id);
-
-						Crafty("" + otherPlayer.id + "").each(function(i) 
+						//console.log("change detected");
+						var otherPlayer = snapshot.val();
+						if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
 						{
-							this.destroy();
-						});
-					}
+							//console.log("child change id: " + otherPlayer.id);
+							//Crafty.trigger("moveID" + otherPlayer.id, otherPlayer); //Update location via event triggering.
+							Crafty.trigger("networkMove", otherPlayer);
+						}
+					});
+
+					//When a network player leaves, delete him or her.	
+					players.on('child_removed', function(snapshot)
+					{
+						var otherPlayer = snapshot.val();
+						if (otherPlayer.id !== playerID && otherPlayer.id !== undefined)
+						{
+							//console.log("child removed id: " + otherPlayer.id);
+
+							Crafty("" + otherPlayer.id + "").each(function(i) 
+							{
+								this.destroy();
+							});
+						}
+					});
 				});
+				
+				Crafty.scene("Title");
 			}
 		</script>
 	</body>
