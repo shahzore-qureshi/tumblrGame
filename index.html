@@ -125,9 +125,14 @@
 							.attr({x: randX, y: 350, w: 200, h: 50})
 							.color('rgb(0,255,150)');
 					
-						// var enemy = Crafty.e("Enemy")
-// 							.attr({x: randX + 170, leftBoundary: randX, rightBoundary: randX + 170, y: 320, w: 30, h: 30, dX: -2});
-// 						
+						var createEnemyChance = 30; //Percent chance of creating enemy on platform.
+						var result = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+						
+						if (result <= createEnemyChance)
+						{
+							var enemy = Crafty.e("EnemyGoomba")
+								.attr({x: randX + 170, leftBoundary: randX, rightBoundary: randX + 170, y: 320, w: 30, h: 30, dX: -1});
+						}
 						
 					}
 					
@@ -136,7 +141,7 @@
 					{
 						var randX = Math.floor(Math.random() * (11500 - 500 + 1) + 500);
 						var randY = Math.floor(Math.random() * (300 - 35 + 1) + 35);
-						var enemy = Crafty.e("Enemy")
+						var enemy = Crafty.e("EnemyBullet")
  							.attr({x: randX, y: randY, w: 40, h: 35, dX: -2});
 					}
 						

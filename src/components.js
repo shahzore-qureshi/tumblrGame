@@ -14,7 +14,52 @@ Crafty.c("Obstacle",
 	}
 });
 
-Crafty.c("Enemy",
+Crafty.c("EnemyGoomba",
+{
+	init: function()
+	{
+		this.requires("2D, DOM, Color, Collision")
+			.color('rgb(55, 243, 140)')
+			.collision(
+				new Crafty.polygon(
+					[0, 0], [30, 0], 
+					[30, 30], [0, 30]
+					)
+				);
+				//Die only when stomped on.
+		
+		this.bind('EnterFrame', function()
+		{
+			this.x += this.dX;
+			
+			if (this.x === this.leftBoundary)
+			{
+				this.dX = 1;
+			}
+			else if (this.x === this.rightBoundary)
+			{
+				this.dX = -1;
+			}
+			
+		});
+		
+		this.onHit("Mario", function(target)
+		{			
+			if (target[0].normal.y > 0) //If Mario jumps on top of the bullet, it is dead.
+			{
+				score = score + 20;
+				Crafty("ScoreCounter").text("Score: " + score);
+				this.destroy();
+			}
+			else
+			{
+				target[0].obj.deathEnemy();
+			}
+		});
+	}
+});
+
+Crafty.c("EnemyBullet",
 {
 	init: function()
 	{
@@ -33,11 +78,18 @@ Crafty.c("Enemy",
 			this.x += this.dX;
 		});
 		
-		this.onHit("Mario", function()
-		{
-			score = score + 20;
-			Crafty("ScoreCounter").text("Score: " + score);
-			this.destroy();
+		this.onHit("Mario", function(target)
+		{						
+			if (target[0].normal.y > 0) //If Mario jumps on top of the bullet, it is dead.
+			{
+				score = score + 20;
+				Crafty("ScoreCounter").text("Score: " + score);
+				this.destroy();
+			}
+			else
+			{
+				target[0].obj.deathEnemy();
+			}
 		});
 	}
 });
@@ -208,8 +260,9 @@ Crafty.c("Mario",
 		return this;
 	},
 	
-	deathEnemy: function()
+	deathEnemy: function(target)
 	{
+		//console.log(target);
 		numOfLives--;
 		Crafty("LifeCounter").text("Lives: " + numOfLives);
 		
