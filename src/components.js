@@ -1,3 +1,6 @@
+var numOfLives = 5;
+var score = 0; //To increase score, kill enemies and finish the level.
+								
 Crafty.load(['assets/spriteMap.png'], function()
 {
 	Crafty.sprite(32, 'assets/spriteMap.png', { PlayerSprite: [0, 0] }, 0 , 0);
@@ -15,33 +18,90 @@ Crafty.c("Enemy",
 {
 	init: function()
 	{
-		this.requires("2D, DOM, Color, Collision")
-			.color('rgb(0,67,150)')
+		this.requires("2D, DOM, Image, Collision")
+			.image("assets/Bullet.png")
 			.collision(
-				new Crafty.polygon([this.x, this.y - (this.h / 2)], [this.x + (this.w / 2), this.y], [this.x + this.w, this.y - (this.h / 2)]));
+				new Crafty.polygon(
+					[0, 0], [40, 0], 
+					[40, 35], [0, 35]
+					)
+				);
 				//Die only when stomped on.
 		
 		this.bind('EnterFrame', function()
 		{
 			this.x += this.dX;
-		
-			if (this.x === this.leftBoundary)
-			{
-				this.dX = 2;
-			}
-			else if (this.x === this.rightBoundary)
-			{
-				this.dX = -2;
-			}
 		});
 		
 		this.onHit("Mario", function()
 		{
+			score = score + 20;
+			Crafty("ScoreCounter").text("Score: " + score);
 			this.destroy();
 		});
+	}
+});
+
+Crafty.c("LifeCounter",
+{
+	init: function()
+	{
+		this.requires("2D, DOM, Text")
+			.text("Lives: " + numOfLives)
+			.textColor("#000000")
+			.textFont(
+				{
+					font: "assets/MyriadPro.OTF",
+					weight: "bold"
+				});
+	}
+	
+});
+
+Crafty.c("ScoreCounter",
+{
+	init: function()
+	{
+		this.requires("2D, DOM, Text")
+			.text("Score: " + score)
+			.textColor("#000000")
+			.textFont(
+				{
+					font: "assets/MyriadPro.OTF",
+					weight: "bold"
+				});
+	}
+	
+});
+
+// Crafty.c("LifeCounterBg",
+// {
+// 	init: function()
+// 	{
+// 		this.requires("2D, DOM, Color")
+// 			.text("Lives: " + numOfLives)
+// 			.css({"color" : "#000000"});
+// 	}
+// 	
+// });
+
+Crafty.c("Castle",
+{
+	init: function()
+	{
+		this.requires("2D, DOM, Image, Collision")
+			.image("assets/Castle.png")
+			.collision(
+				new Crafty.polygon(
+					[0, 0], [32, 0],
+					[32, 32], [0, 32]
+					)
+				);
 		
-		
-		
+		this.onHit("Mario", function()
+		{
+			Crafty.scene("Victory");
+		});
 	}
 });
 
@@ -51,6 +111,12 @@ Crafty.c("Mario",
 	{
 		this.requires("2D, DOM, Multiway, Collision, PlayerSprite, SpriteAnimation")
 			.multiway(10, {UP_ARROW: -90, RIGHT_ARROW: 0, LEFT_ARROW: -180})
+			.collision(
+				new Crafty.polygon(
+					[0, 0], [30, 0], 
+					[30, 30], [0, 30]
+					)
+				)
 			.attr({x: 50, y: 300, w: 30, h: 30})
 			.stopOnHit()
 			.stopOnPitfallDeath()
@@ -90,7 +156,6 @@ Crafty.c("Mario",
 			{
 				this.stop();
 			}	
-
 		});
 	},
 
@@ -118,7 +183,23 @@ Crafty.c("Mario",
 	
 	death: function()
 	{
-		Crafty.scene("Dead"); //Keep this death function separate from the one below. For some reason, Crafty confuses itself.
+		numOfLives--;
+		Crafty("LifeCounter").text("Lives: " + numOfLives);
+		
+		if (numOfLives === 0)
+		{
+			this.destroy();
+			numOfLives = 5; //Re-initialize for next time.
+			score = 0;
+			Crafty.scene("Dead"); //Keep this death function separate from the one below. For some reason, Crafty confuses itself.
+		}
+		else
+		{
+			this.x = 35;
+			this.y = 325;
+			Crafty("LifeCounter").x = this.x;
+			Crafty("ScoreCounter").x = this.x;
+		}
 	},
 	
 	stopOnEnemyHit: function()
@@ -129,9 +210,24 @@ Crafty.c("Mario",
 	
 	deathEnemy: function()
 	{
-		Crafty.scene("Dead");
+		numOfLives--;
+		Crafty("LifeCounter").text("Lives: " + numOfLives);
+		
+		if (numOfLives === 0)
+		{
+			this.destroy();
+			numOfLives = 5; //Re-initialize for next time.
+			score = 0;
+			Crafty.scene("Dead"); //Keep this death function separate from the one below. For some reason, Crafty confuses itself.
+		}
+		else
+		{
+			this.x = 35;
+			this.y = 325;
+			Crafty("LifeCounter").x = this.x;
+			Crafty("ScoreCounter").x = this.x;
+		}
 	}
-
 });
 
 Crafty.c("NetworkPlayer",
@@ -185,7 +281,6 @@ Crafty.c("NetworkPlayer",
 				this.y = data.coordY;
 				this.stop();
 			}	
-
 		});
 	}
 });

@@ -54,11 +54,11 @@
 				{
 					Crafty.background("#FFFFFF");
 	
-					Crafty.sprite("http://craftyjs.com/demos/elevatoraction/images/title.png", {
-						title: [0, 0, 430, 396]
+					Crafty.sprite("assets/Title.png", {
+						title: [0, 0, 900, 400]
 					});
 					Crafty.e("2D, DOM, title")
-						.attr({x: 200});
+						.attr({x: 0});
 					this.restart_game = this.bind('KeyDown', function() {
 						Crafty.scene('Main');
 					  });
@@ -73,11 +73,30 @@
 					Crafty.viewport.init(900, 400);
 					Crafty.background("#FFFFFF");
 	
-					Crafty.sprite("http://craftyjs.com/demos/elevatoraction/images/title.png", {
-						gameOver: [0, 0, 430, 396]
+					Crafty.sprite("assets/GameOver.png", {
+						gameOver: [0, 0, 900, 400]
 					});
 					Crafty.e("2D, DOM, gameOver")
-						.attr({x: 200});
+						.attr({x: 0});
+						
+    				this.restart_game = this.bind('KeyDown', function() {
+						Crafty.scene('Main');
+					  });
+				}, function() 
+				{
+					  this.unbind('KeyDown', this.restart_game);
+				});
+				
+				Crafty.scene("Victory", function()
+				{
+					Crafty.viewport.init(900, 400);
+					Crafty.background("#FFFFFF");
+	
+					Crafty.sprite("assets/Victory.png", {
+						victory: [0, 0, 900, 400]
+					});
+					Crafty.e("2D, DOM, victory")
+						.attr({x: 0});
 						
     				this.restart_game = this.bind('KeyDown', function() {
 						Crafty.scene('Main');
@@ -97,18 +116,28 @@
 					var platformBeginning = Crafty.e("Obstacle, Color")
 							.attr({x: 0, y: 350, w: 500, h: 50})
 							.color('rgb(0,255,150)');
-						
-					for(var i = 0; i < 50; i++) //Create random pitfalls via generating random bits of land.
+					
+					//Create random pitfalls via generating random bits of land.
+					for(var i = 0; i < 50; i++) 
 					{
 						var randX = Math.floor(Math.random() * (11000 - 500 + 1) + 500);
 						Crafty.e("Obstacle, Color")
 							.attr({x: randX, y: 350, w: 200, h: 50})
 							.color('rgb(0,255,150)');
 					
+						// var enemy = Crafty.e("Enemy")
+// 							.attr({x: randX + 170, leftBoundary: randX, rightBoundary: randX + 170, y: 320, w: 30, h: 30, dX: -2});
+// 						
+						
+					}
+					
+					//Spawn random enemies.
+					for (var i = 0; i < 10; i++)
+					{
+						var randX = Math.floor(Math.random() * (11500 - 500 + 1) + 500);
+						var randY = Math.floor(Math.random() * (300 - 35 + 1) + 35);
 						var enemy = Crafty.e("Enemy")
-							.attr({x: randX + 170, leftBoundary: randX, rightBoundary: randX + 170, y: 320, w: 30, h: 30, dX: -2});
-						
-						
+ 							.attr({x: randX, y: randY, w: 40, h: 35, dX: -2});
 					}
 						
 					var platformEnding = Crafty.e("Obstacle, Color")
@@ -125,13 +154,26 @@
 					var rightBoundary = Crafty.e("Obstacle, 2D, DOM, Color")
 								.attr({x: 11995, y: 0, w: 5, h: 400})
 								.color('rgb(255,255,255)');
+								
+					var castle = Crafty.e("Castle")
+								.attr({x: 11950, y: 318, w: 32, h: 32});
+								
+					var lifeCounter = Crafty.e("LifeCounter")
+								.attr({x: 33, y: 355, w: 100, count: 5});	
 				
+					var scoreCounter = Crafty.e("ScoreCounter")
+								.attr({x: 32, y: 375, w: 100, count: 0});
+								
+						
+								
 					var mario = Crafty.e("Mario, Gravity")
 							.bind("Moved", trackCoord)
 							.gravity("Obstacle"); //Any obstacle can stop Mario from falling.
 				
 					function trackCoord()
 					{
+						lifeCounter.x = this.x;
+						scoreCounter.x = this.x;
 						dataRef.update({coordX: this.x, coordY: this.y});	//Push data to multiplayer server.		
 					}
 				
