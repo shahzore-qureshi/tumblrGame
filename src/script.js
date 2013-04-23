@@ -76,6 +76,8 @@ function Game()
     });
 
     Crafty.scene("Victory", function() {
+	Crafty.audio.stop("ambiance");
+	Crafty.audio.play("castle", 1);
 	Crafty.viewport.init(900, 400);
 	Crafty.background("#FFFFFF");
 	Crafty.sprite("assets/Victory.png", {
@@ -97,6 +99,8 @@ function Game()
 	var platformBeginning = Crafty.e("Obstacle, Color")
 	    .attr({x: 0, y: 350, w: 500, h: 50})
 	    .color('rgb(0,255,150)');
+
+	Crafty.audio.play("ambiance", -1);
 
 	//Create random pitfalls via generating random bits of land.
 	for(var i = 0; i < 50; i++) 
