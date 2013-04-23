@@ -18,6 +18,10 @@ Crafty.load(['assets/spriteMap.png'], function()
 	Crafty.sprite(32, 'assets/spriteMap.png', { PlayerSprite: [0, 0] }, 0 , 0);
 });
 
+Crafty.audio.add("ambiance", "assets/mario.ogg");
+Crafty.audio.add("castle", "assets/castle.ogg");
+Crafty.audio.add("jump", "assets/jump.ogg");
+
 /** OBSTACLE
  * Represents a generic square obstacle of some size
  */
@@ -219,31 +223,19 @@ Crafty.c("Mario",
 		var animation_speed = 4;
 		this.bind('NewDirection', function(data)
 		{
-			if (data.x > 0 && data.y < 0) 
-			{
-				this.animate('JumpRight', animation_speed, 1);
-			}
-			else if (data.x < 0 && data.y < 0) 
-			{
-				this.animate('JumpLeft', animation_speed, 1);
-			}
-		
+		    if (data.y > 0) {
+			if (data.x < 0)
+			    this.animate('JumpLeft', animation_speed, 1);
+			else
+			    this.animate('JumpRight', animation_speed, 1);
+		    } else {
+			if (data.x == 0)
+			    this.stop();
 			else if (data.x > 0)
-			{
-				this.animate('RunRight', animation_speed, -1);
-			}
-			else if (data.x < 0) 
-			{
-				this.animate('RunLeft', animation_speed, -1);
-			} 
-			else if (data.y < 0) 
-			{
-				this.animate('JumpRight', animation_speed, 1);
-			} 
-			else 
-			{
-				this.stop();
-			}	
+			    this.animate('RunRight', animation_speed, -1);
+			else if (data.x < 0)
+			    this.animate('RunLeft', animation_speed, -1);
+		    }
 		});
 	},
 
