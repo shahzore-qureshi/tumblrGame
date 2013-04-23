@@ -1,3 +1,15 @@
+// CRAFTY - Components
+/**
+ * Obstacle
+ * EnemyGoomba
+ * EnemyBullet
+ * LifeCounter
+ * ScoreCounter
+ * Castle
+ * Mario
+ * NetworkPlayer
+ */
+
 var numOfLives = 5;
 var score = 0; //To increase score, kill enemies and finish the level.
 								
@@ -6,6 +18,9 @@ Crafty.load(['assets/spriteMap.png'], function()
 	Crafty.sprite(32, 'assets/spriteMap.png', { PlayerSprite: [0, 0] }, 0 , 0);
 });
 
+/** OBSTACLE
+ * Represents a generic square obstacle of some size
+ */
 Crafty.c("Obstacle",
 {
 	init: function()
@@ -14,6 +29,10 @@ Crafty.c("Obstacle",
 	}
 });
 
+/** ENEMYGOOMBA
+ * Represents an enemy that behaves like a Goomba
+ * onHit - MARIO
+ */
 Crafty.c("EnemyGoomba",
 {
 	init: function()
@@ -59,6 +78,10 @@ Crafty.c("EnemyGoomba",
 	}
 });
 
+/** ENEMYBULLET
+ * Represents an enemy Bullet Bill that flies straight through the air
+ * onHit - MARIO
+ */
 Crafty.c("EnemyBullet",
 {
 	init: function()
@@ -94,6 +117,9 @@ Crafty.c("EnemyBullet",
 	}
 });
 
+/** LIFECOUNTER
+ * Test display that show how many 'lives' are left in the game
+ */
 Crafty.c("LifeCounter",
 {
 	init: function()
@@ -110,6 +136,9 @@ Crafty.c("LifeCounter",
 	
 });
 
+/** SCORECOUNTER
+ * Text display that shows the game score
+ */
 Crafty.c("ScoreCounter",
 {
 	init: function()
@@ -137,6 +166,10 @@ Crafty.c("ScoreCounter",
 // 	
 // });
 
+/** CASTLE
+ * Castle entity, which represents an end goal in the game
+ * onHit - MARIO
+ */
 Crafty.c("Castle",
 {
 	init: function()
@@ -157,6 +190,9 @@ Crafty.c("Castle",
 	}
 });
 
+/** MARIO
+ * Represents the player at the local machine
+ */
 Crafty.c("Mario",
 {
 	init: function()
@@ -229,10 +265,10 @@ Crafty.c("Mario",
 	
 	stopOnPitfallDeath: function()
 	{
-		this.onHit("Pitfall", this.death);
+		this.onHit("Pitfall", this.deathEnemy);
 		return this;
 	},
-	
+	/*
 	death: function()
 	{
 		numOfLives--;
@@ -253,7 +289,7 @@ Crafty.c("Mario",
 			Crafty("ScoreCounter").x = this.x;
 		}
 	},
-	
+	*/
 	stopOnEnemyHit: function()
 	{
 		this.onHit("Enemy", this.deathEnemy);
@@ -283,6 +319,9 @@ Crafty.c("Mario",
 	}
 });
 
+/** NETWORKPLAYER
+ * Represents a player at some other location interacting over a network
+ */
 Crafty.c("NetworkPlayer",
 {
 	init: function()
@@ -298,42 +337,21 @@ Crafty.c("NetworkPlayer",
 		var animation_speed = 4;
 		this.bind('networkMove', function(data)
 		{
-			if (data.coordX > this.x && data.coordY < this.y) 
-			{
-				this.x = data.coordX;
-				this.y = data.coordY;
-				this.animate('JumpRight', animation_speed, 1);
-			}
-			else if (data.coordX < this.x && data.coordY < this.y) 
-			{
-				this.x = data.coordX;
-				this.y = data.coordY;
+			if (data.coordY < this.y) {
+			    if (data.coordX < this.x)
 				this.animate('JumpLeft', animation_speed, 1);
-			}
-			else if (data.coordX > this.x)
-			{
-				this.x = data.coordX;
-				this.y = data.coordY;
+			    else
+				this.animate('JumpRight', animation_speed, 1);
+			} else {
+			    if (data.coord == this.x)
+				this.stop();
+			    else if (data.coord < this.x)
+				this.animate('RunLeft', animation_speed, 1);
+			    else if (data.coord > this.x)
 				this.animate('RunRight', animation_speed, 1);
 			}
-			else if (data.coordX < this.x) 
-			{
-				this.x = data.coordX;
-				this.y = data.coordY;
-				this.animate('RunLeft', animation_speed, 1);
-			} 
-			else if (data.coordY < this.y) 
-			{
-				this.x = data.coordX;
-				this.y = data.coordY;
-				this.animate('JumpRight', animation_speed, 1);
-			} 
-			else 
-			{
-				this.x = data.coordX;
-				this.y = data.coordY;
-				this.stop();
-			}	
+			this.x = data.coordX;
+			this.y = data.coordY;
 		});
 	}
 });
