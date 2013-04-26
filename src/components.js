@@ -223,7 +223,7 @@ Crafty.c("Mario",
 		var animation_speed = 4;
 		this.bind('NewDirection', function(data)
 		{
-		    if (data.y > 0) {
+		    if (data.y < 0) {
 			if (data.x < 0)
 			    this.animate('JumpLeft', animation_speed, 1);
 			else
@@ -260,28 +260,7 @@ Crafty.c("Mario",
 		this.onHit("Pitfall", this.deathEnemy);
 		return this;
 	},
-	/*
-	death: function()
-	{
-		numOfLives--;
-		Crafty("LifeCounter").text("Lives: " + numOfLives);
-		
-		if (numOfLives === 0)
-		{
-			this.destroy();
-			numOfLives = 5; //Re-initialize for next time.
-			score = 0;
-			Crafty.scene("Dead"); //Keep this death function separate from the one below. For some reason, Crafty confuses itself.
-		}
-		else
-		{
-			this.x = 35;
-			this.y = 325;
-			Crafty("LifeCounter").x = this.x;
-			Crafty("ScoreCounter").x = this.x;
-		}
-	},
-	*/
+
 	stopOnEnemyHit: function()
 	{
 		this.onHit("Enemy", this.deathEnemy);
