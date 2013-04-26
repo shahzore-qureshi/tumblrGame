@@ -45,8 +45,7 @@ Crafty.c("EnemyGoomba",
 			.color('rgb(55, 243, 140)')
 			.collision(
 				new Crafty.polygon(
-					[0, 0], [30, 0], 
-					[30, 30], [0, 30]
+					[0, 30], [5, 10], [10, 5], [15, 0], [20, 5], [25, 10], [30, 30]
 					)
 				);
 				//Die only when stomped on.
@@ -70,6 +69,7 @@ Crafty.c("EnemyGoomba",
 		{			
 			if (target[0].normal.y > 0) //If Mario jumps on top of the bullet, it is dead.
 			{
+				console.log(target[0]);
 				score = score + 20;
 				Crafty("ScoreCounter").text("Score: " + score);
 				this.destroy();
@@ -283,7 +283,7 @@ Crafty.c("Mario",
 		else
 		{
 			this.x = 35;
-			this.y = 325;
+			this.y = 300;
 			Crafty("LifeCounter").x = this.x;
 			Crafty("ScoreCounter").x = this.x;
 		}
