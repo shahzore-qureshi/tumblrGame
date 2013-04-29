@@ -51,19 +51,17 @@ Crafty.c("Mario",
 			.animate('JumpLeft', 0, 5, 10);
 		
 		var animation_speed = 4;
-		this.bind('NewDirection', function(data)
+		this.bind('NewDirection', function(data) //Handles sprite animations.
 		{
 		    if (data.y < 0) 
 		    {
 				if (data.x < 0)
 				{
 			    	this.animate('JumpLeft', animation_speed, 1);
-			    	Crafty.audio.play("jump", 1);
 			    }
 				else
 				{
 			    	this.animate('JumpRight', animation_speed, 1);
-			    	Crafty.audio.play("jump", 1);
 			    }
 		    } 
 		    else 
@@ -75,6 +73,12 @@ Crafty.c("Mario",
 				else if (data.x < 0)
 					this.animate('RunLeft', animation_speed, -1);
 		    }
+		});
+		
+		this.bind("KeyDown", function(data) //Handles jumping sound.
+		{
+			if (data.keyIdentifier === "Up")
+				Crafty.audio.play("jump", 1);
 		});
 	},
 
@@ -143,19 +147,23 @@ Crafty.c("NetworkPlayer",
 		var animation_speed = 4;
 		this.bind('networkMove', function(data)
 		{
-			if (data.coordY < this.y) {
+			if (data.coordY < this.y)
+			{
 			    if (data.coordX < this.x)
-				this.animate('JumpLeft', animation_speed, 1);
+					this.animate('JumpLeft', animation_speed, 1);
 			    else
-				this.animate('JumpRight', animation_speed, 1);
-			} else {
+					this.animate('JumpRight', animation_speed, 1);
+			} 
+			else 
+			{
 			    if (data.coordX == this.x)
-				this.stop();
+					this.stop();
 			    else if (data.coordX < this.x)
-				this.animate('RunLeft', animation_speed, 1);
+					this.animate('RunLeft', animation_speed, 1);
 			    else if (data.coordX > this.x)
-				this.animate('RunRight', animation_speed, 1);
+					this.animate('RunRight', animation_speed, 1);
 			}
+			
 			this.x = data.coordX;
 			this.y = data.coordY;
 		});
