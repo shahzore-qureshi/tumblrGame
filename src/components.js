@@ -119,8 +119,8 @@ Crafty.c("Mario",
 		{
 			this.x = 35;
 			this.y = 300;
-			Crafty("LifeCounter").x = this.x;
-			Crafty("ScoreCounter").x = this.x;
+			Crafty("LifeCounter").x = this.x - 35;
+			Crafty("ScoreCounter").x = this.x + 20;
 		}
 	}
 });
