@@ -148,7 +148,7 @@ function Game()
 		{
 			var randX = Math.floor(Math.random() * (11000 - 500 + 1) + 500);
 			Crafty.e("Ground")
-				.attr({x: randX, y: 375, w: 200, h: 25});
+				.attr({x: randX, y: 375, w: 400, h: 25});
 				
 			//Percent chance of creating enemy on platform.
 			var createEnemyChance = 20;
@@ -156,9 +156,9 @@ function Game()
 			if (result <= createEnemyChance)
 			{
 			var enemy = Crafty.e("EnemyGoomba")
-				.attr({x: randX + 170, y: 345,
+				.attr({x: randX + 370, y: 345,
 				   leftBoundary: randX,
-				   rightBoundary: randX + 170,
+				   rightBoundary: randX + 370,
 				   w: 30, h: 30, dX: -1});
 			}
 		}
@@ -187,7 +187,7 @@ function Game()
 			.color('rgb(255,255,255)');
 	
 		var castle = Crafty.e("Castle")
-			.attr({x: 11950, y: 318, w: 32, h: 32});
+			.attr({x: 11950, y: 343, w: 32, h: 32});
 	
 		var lifeCounter = Crafty.e("LifeCounter")
 			.attr({x: 15, y: 383, w: 100});	
@@ -208,13 +208,14 @@ function Game()
 			dataRef.update({coordX: this.x, coordY: this.y});
 		}
 
+		//Load tumblr pics.
 		for(var i = 0; i < imgLinks.length; i++)
 		{
 			var randX = Math.floor(Math.random() * (11000 - 400 + 1) + 400);
-			var randY = Math.floor(Math.random() * (150 - 100 + 1) + 150);
+			var randY = Math.floor(Math.random() * (100 - 30 + 1) + 100);
 			Crafty.e("Obstacle, Image")
-			.attr({x: randX, y: randY, w:100, h:100})
-			.image(imgLinks[i]);
+				.image(imgLinks[i])
+				.attr({x: randX, y: randY, w: 100, h: 100});
 		}
 
 		//Specify camera angle and view to follow Mario.
