@@ -36,7 +36,7 @@ Q.animations('goomba', {
 
 Q.Sprite.extend("Mario", {
 	init: function(p) {
-    this._super(p, { sheet: "mario", x: 800, y: 448, sprite: "mario" });
+    this._super(p, { sheet: "mario", x: Q.width / 2, y: Q.height / 2, sprite: "mario" });
     this.add('2d, platformerControls, animation');
     this.on("hit.sprite",function(collision) {
 		  if(collision.obj.isA("Castle")) {
@@ -49,20 +49,20 @@ Q.Sprite.extend("Mario", {
   	step: function(dt) {
   	
 		if(this.p.vx > 0) {
-			if(this.p.vy > 0)
-				this.play("jump_right", 1);
-			else
+			//if(this.p.vy > 0)
+				//this.play("jump_right", 1);
+			//else
 		  		this.play("run_right");
 		} else if(this.p.vx < 0) {
-			if(this.p.vy > 0)
-				this.play("jump_left", 1);
-			else
+			//if(this.p.vy > 0)
+				//this.play("jump_left", 1);
+			//else
 		  		this.play("run_left");
 		} else if(this.p.vy > 0) {
-			if (this.p.direction == "left")
-				this.play("jump_left", 2);
-			else if (this.p.direction == "right")
-				this.play("jump_right", 2);
+			//if (this.p.direction == "left")
+				//this.play("jump_left", 2);
+			//else if (this.p.direction == "right")
+				//this.play("jump_right", 2);
 		} else {
 			if (this.p.direction == "left")
 			{
@@ -116,19 +116,26 @@ Q.Sprite.extend("Goomba",{
 
 Q.scene("level1",function(stage) {
 	// Add in a repeater for a little parallax action
-	stage.insert(new Q.Repeater({ asset: "bg.png", speedX: 0.1, speedY: 0.1, repeatY: false}));
-	stage.collisionLayer(new Q.TileLayer({ dataAsset: 'ground.json', sheet: 'ground'}));
+	stage.insert(new Q.Repeater({ asset: "bg.png", speedX: 0.1, speedY: 0.1, repeatY: true}));
+	var ground = new Q.TileLayer({ dataAsset: 'ground.json', sheet: 'ground'})
+	//ground.p.y = -41;
+	//ground.p.blockH = 200;
+	//ground.refreshMatrix();
+	console.log(ground);
+	stage.collisionLayer(ground);
+	console.log("Height: " + Q.height);
+
 	var player = stage.insert(new Q.Mario());
 	Q.gravityY = 600;
 		
 	stage.add("viewport").follow(player);
-	stage.viewport.offsetY = 100;
+	//stage.viewport.offsetY = Q.height / 2 - 25;
 	
 	var goombaDirectionChance = 50; //50% chance of goomba going left or right
 	var result;
 	var velocity;
 	
-	for(var count = 1000; count < 4000; count = count + 200)
+	for(var count = 1000; count < 4000; count = count + 900)
 	{
 		result = Math.floor(Math.random() * (100 - 1 + 1) + 1);
 		if (result <= goombaDirectionChance)
