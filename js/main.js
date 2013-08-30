@@ -36,7 +36,7 @@ Q.animations('goomba', {
 
 Q.Sprite.extend("Mario", {
 	init: function(p) {
-    this._super(p, { sheet: "mario", x: Q.width / 2, y: Q.height / 2, sprite: "mario" });
+    this._super(p, { sheet: "mario", sprite: "mario" });
     this.add('2d, platformerControls, animation');
     this.on("hit.sprite",function(collision) {
 		  if(collision.obj.isA("Castle")) {
@@ -117,35 +117,24 @@ Q.Sprite.extend("Goomba",{
 Q.scene("level1",function(stage) {
 	// Add in a repeater for a little parallax action
 	stage.insert(new Q.Repeater({ asset: "bg.png", speedX: 0.1, speedY: 0.1, repeatY: true}));
-	var ground = new Q.TileLayer({ dataAsset: 'ground.json', sheet: 'ground'})
-	//ground.p.y = -41;
-	//ground.p.blockH = 200;
-	//ground.refreshMatrix();
-	console.log(ground);
+	var ground = new Q.TileLayer({ x:0, y:0, dataAsset: 'ground.json', sheet: 'ground'});
 	stage.collisionLayer(ground);
-	console.log("Height: " + Q.height);
 
-	var player = stage.insert(new Q.Mario());
+	var player = stage.insert(new Q.Mario({x:800, y:-32}));
 	Q.gravityY = 600;
-		
-	stage.add("viewport").follow(player);
-	//stage.viewport.offsetY = Q.height / 2 - 25;
+    
+	stage.add("viewport").follow(player,{x:true,y:false});
+        stage.centerOn(0,-Q.height/2 + 24);
 	
-	var goombaDirectionChance = 50; //50% chance of goomba going left or right
-	var result;
+	var goombaDirectionChance = 0.5; //50% chance of goomba going left or right
 	var velocity;
 	
 	for(var count = 1000; count < 4000; count = count + 900)
 	{
-		result = Math.floor(Math.random() * (100 - 1 + 1) + 1);
-		if (result <= goombaDirectionChance)
-			velocity = -100;
-		else
-			velocity = 100;
-			
-		stage.insert(new Q.Goomba({ x: count, y: 448, vx: velocity }));
+            velocity = (Math.random() > goombaDirectionChance ? 100 : -100);
+	    stage.insert(new Q.Goomba({ x: count, y: 0, vx: velocity }));
 	}
-	stage.insert(new Q.Castle({ x: 10000, y: 448 - 16 }));
+	stage.insert(new Q.Castle({ x: 10000, y: -16 }));
 });
 
 Q.scene('endGame',function(stage) {
