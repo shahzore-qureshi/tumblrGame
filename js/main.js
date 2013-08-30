@@ -116,7 +116,7 @@ Q.Sprite.extend("Goomba",{
 
 Q.scene("level1",function(stage) {
 	// Add in a repeater for a little parallax action
-	stage.insert(new Q.Repeater({ asset: "bg.png", speedX: 0.1, speedY: 0.1, repeatY: true}));
+	stage.insert(new Q.Repeater({ asset: "light_blue.png", speedX: 0.1, speedY: 0.1, repeatY: true}));
 	var ground = new Q.TileLayer({ x:0, y:0, dataAsset: 'ground.json', sheet: 'ground'});
 	stage.collisionLayer(ground);
 
@@ -153,7 +153,7 @@ Q.scene('endGame',function(stage) {
 	box.fit(20);
 });
 
-Q.load("mario.png, goomba.png, castle.png, ground.png, ground.json, bg.png", function() {
+Q.load("mario.png, goomba.png, castle.png, ground.png, ground.json, light_blue.png", function() {
 	Q.sheet("mario", "mario.png", { tilew: 32, tileh: 32 });
 	Q.sheet("goomba", "goomba.png", { tilew: 32, tileh: 32 });
 	Q.sheet("castle", "castle.png", { tilew: 32, tileh: 32 });
