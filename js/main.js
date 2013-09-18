@@ -129,7 +129,7 @@ Q.scene("level1",function(stage) {
 	var goombaDirectionChance = 0.5; //50% chance of goomba going left or right
 	var velocity;
 	
-	for(var count = 1000; count < 4000; count = count + 900)
+	for(var count = 1000; count < 4000; count = count + 300)
 	{
             velocity = (Math.random() > goombaDirectionChance ? 100 : -100);
 	    stage.insert(new Q.Goomba({ x: count, y: 0, vx: velocity }));
