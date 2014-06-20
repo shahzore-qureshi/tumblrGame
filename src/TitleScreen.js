@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import ui.ImageView as ImageView;
 import device;
 

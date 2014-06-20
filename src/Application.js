@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //Custom class files
 import src.TitleScreen as TitleScreen;
 import src.GameScreen as GameScreen;
