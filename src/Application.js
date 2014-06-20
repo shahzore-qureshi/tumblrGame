@@ -1,6 +1,7 @@
 //Custom class files
 import src.TitleScreen as TitleScreen;
 import src.GameScreen as GameScreen;
+import src.platformer.util as util;
 
 //SDK files
 import ui.StackView as StackView;
@@ -12,6 +13,13 @@ exports = Class(GC.Application, function () {
 	 * place, but before the resources have been loaded.
 	 */
 	this.initUI = function () {
+	
+		// Scale the root view to 1024x576, which will fit on
+		// most phones. If we didn't do this, we'd have to scale
+		// each view differently for different device dimensions.
+		// This letterboxes the game, if necessary.
+		util.scaleRootView(this, 1024, 576);
+			
         var titleScreen = new TitleScreen(),
             gameScreen = new GameScreen();
 
