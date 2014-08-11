@@ -19,32 +19,32 @@ exports = Class(GC.Application, function () {
 		// each view differently for different device dimensions.
 		// This letterboxes the game, if necessary.
 		util.scaleRootView(this, 1024, 576);
-			
-        var titleScreen = new TitleScreen(),
-            gameScreen = new GameScreen();
 
         this.view.style.backgroundColor = '#000000';
 
         //Add a new StackView to the root of the scene graph
         var rootView = new StackView({
-            superview: this,
+            superview: this.view,
             x: 0,
             y: 0,
-            width: device.width,
-            height: device.height,
+            width: this.view.style.width,
+            height: this.view.style.height,
             clip: true,
             backgroundColor: '#222222'
         });
+		
+		var titleScreen = new TitleScreen(),
+            gameScreen = new GameScreen(rootView);
 
-        rootView.push(titleScreen);
-
+        //rootView.push(titleScreen);
+		rootView.push(gameScreen);
+		
         /* Listen for an event dispatched by the title
          * screen when the start button is pressed.
          * Hide the title screen, show the game screen,
          * then dispatch event to game screen to start.
          */
         titleScreen.on('TitleScreen:start', function () {
-            console.log("I've been clicked.");
 			rootView.push(gameScreen);
 			gameScreen.emit('GameScreen:start');
         });
